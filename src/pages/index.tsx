@@ -1,5 +1,4 @@
 import { GetServerSideProps } from "next";
-import useSWR from "swr";
 
 import { fetcher, useFetch } from "../services/useFetch";
 
