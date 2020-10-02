@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-
+import { GetServerSideProps } from "next";
 import useSWR from "swr";
-import { useFetch } from "../services/useFetch";
+
+import { fetcher, useFetch } from "../services/useFetch";
 
 import { Title } from "../styles/pages/Home";
 
@@ -10,8 +10,14 @@ interface IProduct {
   title: string;
 }
 
-export default function Home() {
-  const { data: recommendedProducts } = useFetch<IProduct[]>("recommended");
+interface HomeProps {
+  recommendedProducts: IProduct[];
+}
+
+export default function Home(props: HomeProps) {
+  const { data: recommendedProducts } = useFetch<IProduct[]>("recommended", {
+    initialData: props.recommendedProducts,
+  });
 
   if (!recommendedProducts) {
     return <p>Carregando...</p>;
@@ -30,3 +36,13 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
+  const data = await fetcher<IProduct[]>("recommended");
+
+  return {
+    props: {
+      recommendedProducts: data || [],
+    },
+  };
+};
