@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
+
 import { fetcher } from "../../../services/useFetch";
 
 interface IProduct {
@@ -13,6 +14,11 @@ interface CategoryProps {
 
 export default function Product({ products }: CategoryProps) {
   const router = useRouter();
+
+  if (router.isFallback) {
+    return <p>Carregando...</p>;
+  }
+
   return (
     <div>
       <h1>{router.query.slug}</h1>
@@ -28,17 +34,17 @@ export default function Product({ products }: CategoryProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   const categories = await fetcher<IProduct[]>("categories");
 
-  const paths = categories.map((category) => {
+  const paths = categories.map(({ id }) => {
     return {
       params: {
-        slug: category.id,
+        slug: id,
       },
     };
   });
 
   return {
     paths,
-    fallback: false,
+    fallback: true,
   };
 };
 
