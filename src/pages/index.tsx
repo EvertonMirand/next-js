@@ -1,4 +1,5 @@
 import { GetServerSideProps } from "next";
+import { useCallback } from "react";
 
 import { fetcher, useFetch } from "../services/useFetch";
 
@@ -22,6 +23,11 @@ export default function Home(props: HomeProps) {
     return <p>Carregando...</p>;
   }
 
+  const handleSum = useCallback(async () => {
+    const maths = await (await import("../lib/maths")).default;
+    alert(maths.sum(3, 5));
+  }, []);
+
   return (
     <div>
       <section>
@@ -31,6 +37,7 @@ export default function Home(props: HomeProps) {
             <li key={id}>{title}</li>
           ))}
         </ul>
+        <button onClick={handleSum}>Sum!</button>
       </section>
     </div>
   );
