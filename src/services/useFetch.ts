@@ -3,7 +3,7 @@ import axios from "axios";
 import { fetcherFn } from "swr/dist/types";
 
 export const api = axios.create({
-  baseURL: "http://localhost:3333/",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 export const fetcher = async <T = any>(url: string): Promise<T> => {
