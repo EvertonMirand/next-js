@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 
-import { fetcher } from "../../../services/useFetch";
+import { fetcher } from "@/services/useFetch";
 
 interface IProduct {
   id: string;
