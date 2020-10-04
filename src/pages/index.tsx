@@ -1,22 +1,23 @@
 import SEO from "@/components/SEO";
+
+import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { useCallback } from "react";
+
+import PrismicDOM from "prismic-dom";
+
+import { Document } from "prismic-javascript/types/documents";
 
 import { fetcher, useFetch } from "../services/useFetch";
 
 import { Title } from "../styles/pages/Home";
 
-interface IProduct {
-  id: string;
-  title: string;
-}
-
 interface HomeProps {
-  recommendedProducts: IProduct[];
+  recommendedProducts: Document[];
 }
 
 export default function Home(props: HomeProps) {
-  const { data: recommendedProducts } = useFetch<IProduct[]>("recommended", {
+  const { data: recommendedProducts } = useFetch("product", {
     initialData: props.recommendedProducts,
   });
 
@@ -38,8 +39,12 @@ export default function Home(props: HomeProps) {
       <section>
         <Title>Products</Title>
         <ul>
-          {recommendedProducts.map(({ id, title }) => (
-            <li key={id}>{title}</li>
+          {recommendedProducts.map(({ id, data: { title }, uid }) => (
+            <li key={id}>
+              <Link href={`/catalog/products/${uid}`}>
+                <a>{PrismicDOM.RichText.asText(title)}</a>
+              </Link>
+            </li>
           ))}
         </ul>
         <button onClick={handleSum}>Sum!</button>
@@ -49,11 +54,11 @@ export default function Home(props: HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
-  const data = await fetcher<IProduct[]>("recommended");
+  const recommendedProducts = await fetcher("product");
 
   return {
     props: {
-      recommendedProducts: data || [],
+      recommendedProducts: recommendedProducts || [],
     },
   };
 };
