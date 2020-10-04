@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { GetServerSideProps } from "next";
 import { useCallback } from "react";
 
@@ -30,6 +31,10 @@ export default function Home(props: HomeProps) {
 
   return (
     <div>
+      <SEO
+        title="DevCommerce, your best e-commerce!"
+        shouldExcludeTitleSuffix
+      />
       <section>
         <Title>Products</Title>
         <ul>
