@@ -4,13 +4,12 @@ import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { useCallback } from "react";
 
-import PrismicDOM from "prismic-dom";
-
 import { Document } from "prismic-javascript/types/documents";
 
 import { fetcher, useFetch } from "../services/useFetch";
 
 import { Title } from "../styles/pages/Home";
+import { readText } from "@/utils/PrismicUtils";
 
 interface HomeProps {
   recommendedProducts: Document[];
@@ -42,7 +41,7 @@ export default function Home(props: HomeProps) {
           {recommendedProducts.map(({ id, data: { title }, uid }) => (
             <li key={id}>
               <Link href={`/catalog/products/${uid}`}>
-                <a>{PrismicDOM.RichText.asText(title)}</a>
+                <a>{readText(title)}</a>
               </Link>
             </li>
           ))}

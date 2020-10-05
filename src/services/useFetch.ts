@@ -9,19 +9,33 @@ export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-export const fetcher = async (document: string): Promise<Document[]> => {
-  const recommendedProducts = await client().query([
+export const fetcher = async (
+  document: string,
+  otherQueries: string[] = []
+): Promise<Document[]> => {
+  const data = await client().query([
     Prismic.Predicates.at("document.type", document),
+    ...otherQueries,
   ]);
 
-  return recommendedProducts.results;
+  return data.results;
+};
+
+export const fetcherByUID = async (
+  document: string,
+  slug: string
+): Promise<Document> => {
+  const data = await client().getByUID(document, slug, {});
+
+  return data;
 };
 
 export function useFetch(
   url: string,
-  config: ConfigInterface<Document[], Error, fetcherFn<Document[]>>
+  config: ConfigInterface<Document[] | any, Error, fetcherFn<Document[] | any>>,
+  fn: fetcherFn<Document[]> | fetcherFn<any> = fetcher
 ) {
-  const { data, error, mutate } = useSWR(url, fetcher, config);
+  const { data, error, mutate } = useSWR(url, fn, config);
 
   return { data, error, mutate };
 }

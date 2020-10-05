@@ -1,30 +1,44 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
-
-import { fetcher } from "@/services/useFetch";
-
-interface IProduct {
-  id: string;
-  title: string;
-}
+import Prismic from "prismic-javascript";
+import Link from "next/link";
+import { fetcher, fetcherByUID, useFetch } from "@/services/useFetch";
+import { Document } from "prismic-javascript/types/documents";
+import { readText } from "@/utils/PrismicUtils";
 
 interface CategoryProps {
-  products: IProduct[];
+  products: Document[];
+  category: Document;
+  slug: string;
 }
 
-export default function Product({ products }: CategoryProps) {
+export default function Product(props: CategoryProps) {
+  const {
+    data: { products, category },
+  } = useFetch(
+    props.slug,
+    {
+      initialData: { ...props },
+    },
+    productsFetcher
+  );
+
   const router = useRouter();
 
-  if (router.isFallback) {
+  if (router.isFallback || !products?.length) {
     return <p>Carregando...</p>;
   }
 
   return (
     <div>
-      <h1>{router.query.slug}</h1>
+      <h1>{readText(category?.data?.title)}</h1>
       <ul>
-        {products.map(({ id, title }) => (
-          <li key={id}>{title}</li>
+        {products.map(({ id, data: { title }, uid }) => (
+          <li key={id}>
+            <Link href={`/catalog/products/${uid}`}>
+              <a>{readText(title)}</a>
+            </Link>
+          </li>
         ))}
       </ul>
     </div>
@@ -32,12 +46,12 @@ export default function Product({ products }: CategoryProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const categories = await fetcher<IProduct[]>("categories");
+  const categories = await fetcher("categories");
 
-  const paths = categories.map(({ id }) => {
+  const paths = categories.map(({ uid }) => {
     return {
       params: {
-        slug: id,
+        slug: uid,
       },
     };
   });
@@ -48,15 +62,31 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
+const productsFetcher = async (slug: string | string[]) => {
+  const category = await fetcherByUID("category", String(slug));
+
+  const products =
+    (await fetcher("product", [
+      Prismic.Predicates.at("my.product.category", category.id),
+    ])) || [];
+
+  return {
+    products,
+    category,
+  };
+};
+
 export const getStaticProps: GetStaticProps<CategoryProps> = async (
   context
 ) => {
   const { slug } = context.params;
-  const products = await fetcher<IProduct[]>(`products?category_id=${slug}`);
+  const { products, category } = await productsFetcher(slug);
 
   return {
     props: {
       products,
+      category,
+      slug: String(slug),
     },
     revalidate: 60,
   };
