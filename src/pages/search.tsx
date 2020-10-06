@@ -23,7 +23,7 @@ export default function Search({ searchResults }: SearchProps) {
     router.push(`/search?q=${encodeURIComponent(search)}`);
 
     setSearch("");
-  }, []);
+  }, [search]);
 
   const onChangeSearch = useCallback(
     ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
