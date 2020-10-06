@@ -33,7 +33,7 @@ export const fetcherByUID = async (
 export function useFetch(
   url: string,
   config: ConfigInterface<Document[] | any, Error, fetcherFn<Document[] | any>>,
-  fn: fetcherFn<Document[]> | fetcherFn<any> = fetcher
+  fn: fetcherFn<Document[]> | fetcherFn<Document> | fetcherFn<any> = fetcher
 ) {
   const { data, error, mutate } = useSWR(url, fn, config);
 

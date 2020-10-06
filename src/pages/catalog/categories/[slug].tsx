@@ -9,21 +9,20 @@ import { readText } from "@/utils/PrismicUtils";
 interface CategoryProps {
   products: Document[];
   category: Document;
-  slug: string;
 }
 
 export default function Product(props: CategoryProps) {
+  const router = useRouter();
+  const slug = router?.query.slug;
   const {
     data: { products, category },
   } = useFetch(
-    props.slug,
+    String(slug),
     {
       initialData: { ...props },
     },
     productsFetcher
   );
-
-  const router = useRouter();
 
   if (router.isFallback || !products?.length) {
     return <p>Carregando...</p>;
@@ -86,7 +85,6 @@ export const getStaticProps: GetStaticProps<CategoryProps> = async (
     props: {
       products,
       category,
-      slug: String(slug),
     },
     revalidate: 60,
   };

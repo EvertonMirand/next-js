@@ -1,17 +1,13 @@
 import { GetStaticProps } from "next";
+import { Document } from "prismic-javascript/types/documents";
 import { fetcher, useFetch } from "../services/useFetch";
 
-interface IProduct {
-  id: string;
-  title: string;
-}
-
 interface Top10Props {
-  products: IProduct[];
+  products: Document[];
 }
 
 export default function Top10(props: Top10Props) {
-  const { data: products } = useFetch<IProduct[]>("products", {
+  const { data: products } = useFetch("products", {
     initialData: props.products,
   });
 
@@ -34,7 +30,7 @@ export default function Top10(props: Top10Props) {
 }
 
 export const getStaticProps: GetStaticProps<Top10Props> = async (context) => {
-  const products = await fetcher<IProduct[]>("products");
+  const products = await fetcher("products");
 
   return {
     props: {
